@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "703036570353",
+    "project_id": "soochi-bbbc0",
+    "storage_bucket": "soochi-bbbc0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703036570353:android:9f58a20d253c8ddcd04750",
+        "android_client_info": {
+          "package_name": "com.example.soochi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgQ0fd0xVyqjRuE5jpj63k1KK3lkynGMo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
