@@ -97,7 +97,6 @@ class Checklist {
   final double longitude;
   final List<ChecklistItem> items;
   final List<String> assignedToUserIDs;
-  final Duration? period; // Moved period here
 
   Checklist({
     required this.name,
@@ -106,7 +105,6 @@ class Checklist {
     required this.longitude,
     required this.items,
     required this.assignedToUserIDs,
-    required this.period,
   });
 
   Map<String, dynamic> toMap() {
@@ -117,7 +115,6 @@ class Checklist {
       'longitude': longitude,
       'items': items.map((item) => item.toMap()).toList(),
       'assignedToUserIDs': assignedToUserIDs,
-      'period': period?.inMilliseconds, // Store period in milliseconds
     };
   }
 
@@ -129,7 +126,6 @@ class Checklist {
       longitude: map['longitude'],
       items: (map['items'] as List).map((item) => ChecklistItem.fromMap(item)).toList(),
       assignedToUserIDs: List<String>.from(map['assignedToUserIDs']),
-      period: map['period'] != null ? Duration(milliseconds: map['period']) : null,
     );
   }
 

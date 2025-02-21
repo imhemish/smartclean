@@ -1,7 +1,9 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum UserRole {
-  attendant, supervisor, coordinator 
+  Attendant, Supervisor, Coordinator 
 }
 
 var _firestore = FirebaseFirestore.instance;
@@ -11,12 +13,14 @@ class User {
   final String name;
   final String googleAuthID;
   final String? area;
+  final String uid;
   final UserRole role;
 
   User({
     required this.name,
     required this.googleAuthID,
     required this.area,
+    required this.uid,
     required this.role
   });
 
@@ -25,6 +29,7 @@ class User {
       'name': name,
       'googleAuthID': googleAuthID,
       'area': area,
+      'uid': uid,
       'role': role.name
     };
   }
@@ -33,8 +38,9 @@ class User {
     return User(
       name: map['name'],
       googleAuthID: map['googleAuthID'],
-      area: map['area'],
-      role: UserRole.values.firstWhere((e) => e.name == map['role'])
+      area: map.containsKey('area') ? map['area'] : null,
+      role: UserRole.values.firstWhere((e) => e.name == map['role']),
+      uid: map['uid']
     );
   }
 
