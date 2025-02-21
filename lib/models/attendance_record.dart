@@ -42,7 +42,6 @@ class AttendanceRecord {
       print('Error saving AttendanceRecord: $e');
     }
   }
-
   static Future<void> toggleAttendance(String documentId) async {
     try {
       DocumentSnapshot doc = await attendanceRecords.doc(documentId).get();
