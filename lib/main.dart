@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:soochi/models/user.dart';
+import 'package:soochi/views/assign_areas.dart';
+import 'package:soochi/views/areas_page_admin.dart';
 import 'package:soochi/views/checklist_overview.dart';
 import 'firebase_options.dart';
 
@@ -19,7 +22,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          backgroundColor: Colors.orange[700],
+          titleTextStyle: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2, fontSize: 25)
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: Colors.orange[700]
+        ),
+        
         // This is the theme of your application.
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
@@ -37,8 +50,9 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        
       ),
-      home: const ChecklistOverviewPage(area: 'Block 1'),
+      home:  ChecklistOverviewPage(area: 'Engineering Block 1', adminRole: UserRole.Supervisor),
     );
   }
 }

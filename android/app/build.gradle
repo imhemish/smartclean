@@ -10,8 +10,8 @@ plugins {
 
 android {
     namespace = "com.example.soochi"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdkVersion 34
+    ndkVersion = flutter.ndkVersioncompileSdk = 
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
