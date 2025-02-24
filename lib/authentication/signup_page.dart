@@ -42,13 +42,13 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _loadRole() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _selectedRole = prefs.getString('user_role') ?? 'Supervisor';
+      _selectedRole = prefs.getString('role') ?? 'Supervisor';
     });
   }
 
   Future<void> _saveRole(String role) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_role', role);
+    await prefs.setString('role', role);
   }
 
   Future<UserCredential?> _signInWithGoogleOnWeb() async {
@@ -85,8 +85,14 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  Future<void> _storeUserData(User user) async {
+  Future<bool> _storeUserData(User user) async {
     try {
+      await _firestore.collection('users').doc(user.uid).get().then((doc) {
+        if (doc.exists) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User already exists, please sign in")));
+          return false;
+        }
+      });
       await _firestore.collection('users').doc(user.uid).set({
         'googleAuthID': FirebaseAuth.instance.currentUser?.uid,
         'uid': _uidController.text,
@@ -95,10 +101,12 @@ class _SignUpPageState extends State<SignUpPage> {
       }, SetOptions(merge: true));
 
       await _saveRole(_selectedRole);
+      return true;
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error storing user data: ${error.toString()}')),
       );
+      return false;
     }
   }
 
@@ -228,9 +236,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () => Navigator.push(
+                  onPressed: () => Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const AttendancePage()),
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
                   ),
                   child: Text(
                     "Already have an account? Login",

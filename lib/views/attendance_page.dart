@@ -3,7 +3,6 @@ import 'package:soochi/views/profile_page_admin.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'checklist_page_admin.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
