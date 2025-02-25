@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:soochi/authentication/login_page.dart';
 
@@ -60,6 +61,7 @@ class _ProfilePageAdminState extends State<ProfilePageAdmin> {
                 leading: const Icon(Icons.logout, color: Colors.orange),
                 title: const Text('Logout'),
                 onTap: () {
+                  FirebaseAuth.instance.signOut();
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginPage()));
                 },
               ),
