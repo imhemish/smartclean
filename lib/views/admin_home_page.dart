@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soochi/authentication/signup_page.dart';
+import 'package:soochi/logout_dialog.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/views/areas_page_admin.dart';
 import 'package:soochi/views/checklist_overview.dart';
@@ -28,6 +31,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
   bool loading = true;
 
   void _setupRoleAndAreaAndPages() async {
+    setState(() {
+      loading = true;
+    });
     final prefs = await SharedPreferences.getInstance();
     final role = prefs.getString('role');
     if (role == 'Supervisor') {
@@ -46,9 +52,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
       final snapshot = await FirebaseFirestore.instance.collection("users").where("googleAuthID", isEqualTo: FirebaseAuth.instance.currentUser!.uid).get();
         if (snapshot.docs.isNotEmpty) {
           final user = snapshot.docs.first;
-          area = user.get("area");
+          String? area;
+          try {
+            area = user.get("area");
+          } catch (e) {
+            print("area does not exist for admin");
+          }
           if (area != null) {
-            prefs.setString("area", area!);
+            prefs.setString("area", area);
           }
             
         }
@@ -91,17 +102,25 @@ class _AdminHomePageState extends State<AdminHomePage> {
     }
 
     if (adminRole == UserRole.Supervisor && area == null) {
-      return const Scaffold(
-        body: Center(
-          child: Column(
-            children: [
-              Icon(Icons.error, color: Colors.red, size: 50),
-              Center(
-          
-                child: Text("You are not assigned any area yet"),
-              ),
-            ],
-          ),
+      return Scaffold(
+        appBar: AppBar(title: Text("Not Assigned"), actions: [
+          IconButton(onPressed: () {
+          showSignOutDialog(context);
+        }, icon: Icon(Icons.logout,)),
+
+        IconButton(onPressed: () => _setupRoleAndAreaAndPages(), icon: Icon(Icons.refresh))
+
+        ],),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error, color: Colors.red, size: 60),
+            SizedBox(height: 20,),
+            Center(
+        
+              child: Text("You are not assigned any area yet"),
+            ),
+          ],
         ),
       );
     }
