@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/login_page.dart';
-import 'package:soochi/views/attendance_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -95,7 +94,8 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _signInWithGoogle() async {
@@ -127,26 +127,26 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Theme(
       data: ThemeData(
-        colorScheme: ColorScheme.light(primary: Colors.orange.shade700),
+        primarySwatch: Colors.orange,
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange.shade700,
+            backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            elevation: 4,
+            elevation: 2,
             minimumSize: const Size(double.infinity, 50),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.orange.shade700, width: 2),
+            borderSide: BorderSide(color: Colors.orange, width: 2),
           ),
-          labelStyle: TextStyle(color: Colors.orange.shade700),
+          labelStyle: const TextStyle(color: Colors.orange),
         ),
       ),
       child: Scaffold(
@@ -157,20 +157,26 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Icon(
+                  Icons.person_add,
+                  size: 60,
+                  color: Colors.orange.shade700,
+                ),
+                const SizedBox(height: 10),
                 Text(
                   "Create an Account",
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange.shade900,
+                    color: Colors.orange.shade800,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 Text(
                   "Sign up to continue",
-                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -225,7 +231,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextButton(
                   onPressed: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AttendancePage()),
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
                   ),
                   child: Text(
                     "Already have an account? Login",

@@ -18,6 +18,7 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
   void initState() {
     super.initState();
     _loadUserArea();
+    print(currentUserID);
   }
 
   Future<void> _loadUserArea() async {
@@ -34,29 +35,21 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
   Future<void> _toggleTaskStatus(String itemID, bool currentStatus, String checklistId) async {
     if (currentUserID == null) return;
 
+    print('Toggling Task - itemID: $itemID, checklistId: $checklistId, currentStatus: $currentStatus');
+
     try {
       if (!currentStatus) {
-        // Task is being marked as completed
         await _firestore.collection('checks').add({
           'userID': currentUserID,
           'itemID': itemID,
-          'datentime': FieldValue.serverTimestamp(),
+          'datentime': Timestamp.now(),
           'userName': FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown User',
           'checklistId': checklistId,
           'Status': true,
         });
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Task completed'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
+        print('Task Marked as Completed');
       } else {
-        // Task is being marked as not completed
         var checksQuery = await _firestore
             .collection('checks')
             .where('itemID', isEqualTo: itemID)
@@ -66,38 +59,17 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
 
         for (var doc in checksQuery.docs) {
           await doc.reference.delete();
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Task not completed'),
-              backgroundColor: Colors.orange.shade700,
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          print('Task Unchecked: ${doc.id}');
         }
       }
 
-      // Refresh the UI state
       if (mounted) {
-        setState(() {
-          // This will trigger a rebuild
-        });
+        setState(() {});
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating task status: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      print('Error updating task status: $e');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

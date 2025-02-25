@@ -9,6 +9,7 @@ import 'package:soochi/models/user.dart';
 import 'package:soochi/views/assign_areas.dart';
 import 'package:soochi/views/areas_page_admin.dart';
 import 'package:soochi/views/checklist_overview.dart';
+import 'package:soochi/views/checklist_page_admin.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
         ),
         
       ),
-      home: SignUpPage(),
+      home: AssignedTasksPage(),
     );
   }
 }

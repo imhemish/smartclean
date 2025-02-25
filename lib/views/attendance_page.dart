@@ -49,7 +49,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
     Fluttertoast.showToast(
       msg: isPresent ? "Marked Present" : "Marked Absent",
-      toastLength: Toast.LENGTH_LONG,
+      toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.SNACKBAR,
       backgroundColor: isPresent ? Colors.green[600] : Colors.red[600],
       textColor: Colors.white,
@@ -85,7 +85,6 @@ class _AttendancePageState extends State<AttendancePage> {
         title: const Text(
           'Attendance Record',
           style: TextStyle(
-            fontWeight: FontWeight.w800,
             fontSize: 24,
             color: Colors.white,
             letterSpacing: 1.2,
