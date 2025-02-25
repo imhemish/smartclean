@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/login_page.dart';
-import 'package:soochi/views/attendance_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -53,13 +52,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<UserCredential?> _signInWithGoogleOnWeb() async {
     try {
-      UserCredential credential =
-      await _auth.signInWithPopup(GoogleAuthProvider());
-      return credential;
+      return await _auth.signInWithPopup(GoogleAuthProvider());
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      _showSnackBar(error.toString());
       return null;
     }
   }
@@ -78,9 +73,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
       return await _auth.signInWithCredential(credential);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      _showSnackBar(error.toString());
       return null;
     }
   }
@@ -110,19 +103,19 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _signInWithGoogle() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
-      UserCredential? userCredential;
-
-      if (kIsWeb) {
-        userCredential = await _signInWithGoogleOnWeb();
-      } else {
-        userCredential = await _signInWithGoogleOnMobile();
-      }
+      UserCredential? userCredential =
+      kIsWeb ? await _signInWithGoogleOnWeb() : await _signInWithGoogleOnMobile();
 
       if (userCredential?.user != null) {
         await _storeUserData(userCredential!.user!);
@@ -134,9 +127,7 @@ class _SignUpPageState extends State<SignUpPage> {
         }
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      _showSnackBar(error.toString());
     } finally {
       setState(() => _isLoading = false);
     }
@@ -152,89 +143,101 @@ class _SignUpPageState extends State<SignUpPage> {
             backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
+            elevation: 2,
             minimumSize: const Size(double.infinity, 50),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.orange),
+            borderSide: BorderSide(color: Colors.orange, width: 2),
           ),
           labelStyle: const TextStyle(color: Colors.orange),
         ),
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Icon(
+                  Icons.person_add,
+                  size: 60,
+                  color: Colors.orange.shade700,
+                ),
+                const SizedBox(height: 10),
                 Text(
-                  "Sign Up",
+                  "Create an Account",
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
                     color: Colors.orange.shade800,
                   ),
                 ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _uidController,
-                  decoration: const InputDecoration(
-                    labelText: "UID",
-                  ),
-                  validator: (value) =>
-                  value!.isEmpty ? 'Please enter your UID' : null,
+                const SizedBox(height: 6),
+                Text(
+                  "Sign up to continue",
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: "Name",
+                const SizedBox(height: 20),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _uidController,
+                        decoration: const InputDecoration(labelText: "UID"),
+                        validator: (value) =>
+                        value!.isEmpty ? 'Please enter your UID' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(labelText: "Name"),
+                        validator: (value) =>
+                        value!.isEmpty ? 'Please enter your Name' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _selectedRole,
+                        decoration: const InputDecoration(labelText: "Role"),
+                        items: _roles.map((String role) {
+                          return DropdownMenuItem(
+                            value: role,
+                            child: Text(role),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedRole = newValue!;
+                          });
+                        },
+                        validator: (value) =>
+                        value == null ? 'Please select a role' : null,
+                      ),
+                      const SizedBox(height: 24),
+                      _isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton.icon(
+                        onPressed: _signInWithGoogle,
+                        icon: Image.asset(
+                          'assets/images/google_icon.png',
+                          height: 24,
+                          width: 24,
+                        ),
+                        label: const Text("Sign up with Google"),
+                      ),
+                    ],
                   ),
-                  validator: (value) =>
-                  value!.isEmpty ? 'Please enter your Name' : null,
                 ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedRole,
-                  decoration: const InputDecoration(
-                    labelText: "Role",
-                  ),
-                  items: _roles.map((String role) {
-                    return DropdownMenuItem(
-                      value: role,
-                      child: Text(role),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedRole = newValue!;
-                    });
-                  },
-                  validator: (value) =>
-                  value == null ? 'Please select a role' : null,
-                ),
-                const SizedBox(height: 24),
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton.icon(
-                  onPressed: _signInWithGoogle,
-                  icon: Image.asset(
-                    'assets/images/google_icon.png',
-                    height: 24,
-                    width: 24,
-                  ),
-                  label: const Text("Sign up with Google"),
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 TextButton(
                   onPressed: () => Navigator.pushReplacement(
                     context,
@@ -242,7 +245,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   child: Text(
                     "Already have an account? Login",
-                    style: TextStyle(color: Colors.orange.shade800),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.orange.shade800,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

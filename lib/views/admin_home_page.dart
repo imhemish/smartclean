@@ -11,6 +11,7 @@ import 'package:soochi/views/checklist_overview.dart';
 import 'package:soochi/views/profile_page_admin.dart';
 
 import 'attendance_page.dart';
+
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
 
