@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/models/user.dart';
@@ -10,7 +11,8 @@ import 'package:soochi/views/attendant_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
 );
@@ -20,27 +22,38 @@ FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   if (stringRole != null) {
     userRole = UserRole.values.firstWhere((element) => element.name == stringRole);
   }
-  
+  FlutterNativeSplash.remove();
   runApp(MyApp(userRole: userRole,));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final UserRole? userRole;
   const MyApp({super.key, required this.userRole});
 
   @override
-  Widget build(BuildContext context) {
-    Widget? homePage;
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Widget? homePage;
+  @override
+  void initState() {
     if (FirebaseAuth.instance.currentUser == null) {
-      homePage = SignUpPage();
-    } else if (userRole == UserRole.Coordinator || userRole == UserRole.Supervisor) {
-      homePage = AdminHomePage();
-    } else if (userRole == UserRole.Attendant) {
-      homePage = AttendantPage();
+      
+      setState(() => homePage = SignUpPage());
+    } else if (widget.userRole == UserRole.Coordinator || widget.userRole == UserRole.Supervisor) {
+      setState(() => homePage = AdminHomePage());
+    } else if (widget.userRole == UserRole.Attendant) {
+      setState(() => homePage = AttendantPage());
     } else {
       // Base case
-      homePage = SignUpPage();
+      setState(() => homePage = SignUpPage());
     }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Soochi',
