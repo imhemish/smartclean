@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:soochi/views/profile_page_admin.dart';
 import 'package:soochi/views/checklist_page_admin.dart';
 import 'attendance_page.dart';
+
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
 
@@ -39,9 +40,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.orange[50],
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Attendance'),
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Checklist'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.list_alt), label: 'Attendance'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard), label: 'Checklist'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: 'Profile'),
         ],
       ),
     );

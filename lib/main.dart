@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:soochi/authentication/login_page.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/views/admin_home_page.dart';
+import 'package:soochi/views/assigned_task_page.dart';
 import 'package:soochi/views/attendance_page.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/views/assign_areas.dart';
@@ -26,7 +27,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Soochi',
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         appBarTheme: AppBarTheme(
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         ),
         
       ),
-      home: AdminHomePage(),
+      home: SignUpPage(),
     );
   }
 }
