@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<UserCredential?> _signInWithGoogleOnWeb() async {
     try {
       UserCredential credential =
-          await _auth.signInWithPopup(GoogleAuthProvider());
+      await _auth.signInWithPopup(GoogleAuthProvider());
       return credential;
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
       if (googleUser == null) return null;
 
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -60,13 +60,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _signInWithGoogle() async {
-    if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isLoading = true);
 
     try {
       UserCredential? userCredential;
-
       if (kIsWeb) {
         userCredential = await _signInWithGoogleOnWeb();
       } else {
@@ -78,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
             .collection("users")
             .doc(userCredential!.user!.uid)
             .get();
+
         if (userInFirebase.exists) {
           final prefs = await SharedPreferences.getInstance();
           final userRole = userInFirebase.get('role');
@@ -97,7 +95,8 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => AdminHomePage()));
           } else {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AttendantPage()));
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => AttendantPage()));
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -137,13 +136,13 @@ class _LoginPageState extends State<LoginPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            elevation: 4, // Adds a slight shadow for depth
+            elevation: 4,
             minimumSize: const Size(double.infinity, 50),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.orange.shade50, // Soft background for text fields
+          fillColor: Colors.orange.shade50,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -176,49 +175,24 @@ class _LoginPageState extends State<LoginPage> {
                       color: Colors.orange.shade800,
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                
-                
-                _isLoading
-                    ? Center(child: const CircularProgressIndicator())
-                    : ElevatedButton(
-                        onPressed: () {
-                          _signInWithGoogle();
-                        },
-                        child: const Text("Login with Google"),
-                      ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => SignUpPage()));
-                  },
-                  child: Text(
-                    "Don't have an account? Sign Up",
-                    style: TextStyle(color: Colors.orange.shade800),
-                  ),
                   const SizedBox(height: 24),
                   _isLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
-                    onPressed: () {},
-                    child: const Text("Login"),
+                    onPressed: _signInWithGoogle,
+                    child: const Text("Login with Google"),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => SignUpPage()),
                       );
                     },
                     child: Text(
                       "Don't have an account? Sign Up",
-                      style: TextStyle(
-                        color: Colors.orange.shade800,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(color: Colors.orange.shade800),
                     ),
                   ),
                 ],
