@@ -43,21 +43,23 @@ class _AttendancePageState extends State<AttendancePage> {
       'name': name,
       'datentime': Timestamp.now(),
       'present': isPresent,
-      'date': DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day),
+      'date':
+          DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day),
     });
 
     Fluttertoast.showToast(
       msg: isPresent ? "Marked Present" : "Marked Absent",
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.SNACKBAR,
-      backgroundColor: isPresent ? Colors.red : Colors.green,
+      backgroundColor: isPresent ? Colors.green[600] : Colors.red[600],
       textColor: Colors.white,
       fontSize: 16.0,
     );
   }
 
   Future<void> _loadAttendanceStatus() async {
-    final startOfDay = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+    final startOfDay =
+        DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     final attendanceSnapshot = await FirebaseFirestore.instance
@@ -82,29 +84,39 @@ class _AttendancePageState extends State<AttendancePage> {
         centerTitle: true,
         title: const Text(
           'Attendance Record',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.white, letterSpacing: 2),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 24,
+            color: Colors.white,
+            letterSpacing: 1.2,
+          ),
         ),
-        backgroundColor: Colors.orange[700],
-        elevation: 5,
+        backgroundColor: Colors.orange[800],
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
       ),
       body: Column(
         children: [
           Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(5),
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange[100],
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 8,
+                  color: Colors.orange.withOpacity(0.2),
+                  blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: TableCalendar(
-              rowHeight: 45,
+              rowHeight: 48,
               firstDay: DateTime.utc(2010, 10, 16),
               lastDay: DateTime.now().add(const Duration(days: 365)),
               focusedDay: _focusedDate,
@@ -121,8 +133,13 @@ class _AttendancePageState extends State<AttendancePage> {
                 titleCentered: true,
                 titleTextStyle: TextStyle(
                   color: Colors.orange[900],
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
+                leftChevronIcon:
+                    Icon(Icons.chevron_left, color: Colors.orange[700]),
+                rightChevronIcon:
+                    Icon(Icons.chevron_right, color: Colors.orange[700]),
               ),
               calendarStyle: CalendarStyle(
                 selectedDecoration: BoxDecoration(
@@ -133,6 +150,8 @@ class _AttendancePageState extends State<AttendancePage> {
                   color: Colors.orange[300],
                   shape: BoxShape.circle,
                 ),
+                weekendTextStyle: TextStyle(color: Colors.orange[900]),
+                outsideTextStyle: TextStyle(color: Colors.orange[200]),
               ),
             ),
           ),
@@ -147,49 +166,71 @@ class _AttendancePageState extends State<AttendancePage> {
               },
               decoration: InputDecoration(
                 hintText: "Search by Name or UID",
-                prefixIcon: const Icon(Icons.search, color: Colors.orange),
+                hintStyle: TextStyle(color: Colors.orange[300]),
+                prefixIcon: Icon(Icons.search, color: Colors.orange[600]),
                 filled: true,
-                fillColor: Colors.orange[50],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.orange),
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.orange[200]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.orange[600]!),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 8),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _getAttendants(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return Center(
+                    child: Text(
+                      'Error: ${snapshot.error}',
+                      style: TextStyle(color: Colors.orange[900]),
+                    ),
+                  );
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.orange[600],
+                    ),
+                  );
                 }
 
                 final users = snapshot.data!.docs.where((user) {
                   final String name = user['name'].toLowerCase();
                   final String uid = user['uid'].toLowerCase();
-                  return name.contains(_searchQuery) || uid.contains(_searchQuery);
+                  return name.contains(_searchQuery) ||
+                      uid.contains(_searchQuery);
                 }).toList();
 
                 if (users.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No attendants found.',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.person_search,
+                            size: 48, color: Colors.orange[300]),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No attendants found',
+                          style: TextStyle(
+                            color: Colors.orange[800],
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.all(16),
                   itemCount: users.length,
                   itemBuilder: (context, index) {
                     final user = users[index];
@@ -197,20 +238,56 @@ class _AttendancePageState extends State<AttendancePage> {
                     final String name = user['name'];
                     final bool isPresent = attendanceStatus[uid] ?? false;
                     return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: Colors.orange[100],
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: ListTile(
-                        title: Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                        subtitle: Text('UID: $uid', style: TextStyle(fontSize: 14, color: Colors.grey[800])),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: isPresent
+                              ? Colors.green[100]
+                              : Colors.orange[100],
+                          child: Icon(
+                            Icons.person,
+                            color: isPresent
+                                ? Colors.green[600]
+                                : Colors.orange[600],
+                          ),
+                        ),
+                        title: Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'UID: $uid',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                         trailing: Switch(
                           value: isPresent,
-                          activeColor: Colors.green,
-                          inactiveThumbColor: Colors.orange,
-                          onChanged: (value) => _markAttendance(uid, name, value),
+                          activeColor: Colors.green[600],
+                          activeTrackColor: Colors.green[100],
+                          inactiveThumbColor: Colors.orange[600],
+                          inactiveTrackColor: Colors.orange[100],
+                          onChanged: (value) =>
+                              _markAttendance(uid, name, value),
                         ),
                       ),
                     );
