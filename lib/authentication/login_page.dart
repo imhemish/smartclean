@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/views/admin_home_page.dart';
+import 'package:soochi/views/assigned_task_page.dart';
 import 'package:soochi/views/attendant_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -96,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                 MaterialPageRoute(builder: (context) => AdminHomePage()));
           } else {
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => AttendantPage()));
+                context, MaterialPageRoute(builder: (context) => AssignedTasksPage()));
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(

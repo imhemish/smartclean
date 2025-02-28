@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/views/admin_home_page.dart';
+import 'package:soochi/views/assigned_task_page.dart';
 import 'package:soochi/views/attendant_page.dart';
 import 'firebase_options.dart';
 
@@ -44,7 +45,7 @@ class _MyAppState extends State<MyApp> {
     } else if (widget.userRole == UserRole.Coordinator || widget.userRole == UserRole.Supervisor) {
       setState(() => homePage = AdminHomePage());
     } else if (widget.userRole == UserRole.Attendant) {
-      setState(() => homePage = AttendantPage());
+      setState(() => homePage = AssignedTasksPage());
     } else {
       // Base case
       setState(() => homePage = SignUpPage());
@@ -61,7 +62,13 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         appBarTheme: AppBarTheme(
           centerTitle: true,
-          backgroundColor: Colors.orange[700],
+          backgroundColor: Colors.orange[800],
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+        ),
           titleTextStyle: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2, fontSize: 25)
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(

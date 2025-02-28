@@ -183,7 +183,7 @@ class _ChecklistOverviewPageState extends State<ChecklistOverviewPage> {
                     onSelected: (value) {
                       if (value == 'Delete') {
                         showDeleteConfirmationDialog(
-                                context, "checklist ${checklist['name']}")
+                                context, "checklist ${checklist['name']}?")
                             .then((value) {
                           if (value == true) {
                             FirebaseFirestore.instance
@@ -361,8 +361,9 @@ class ChecklistDetailPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            CheckHistoryPage(itemId: item['itemID']),
+                        builder: (context) {
+                          print(item['itemID']);
+                            return CheckHistoryPage(itemId: item['itemID']);},
                       ),
                     );
                   },
@@ -490,33 +491,36 @@ class CheckHistoryPage extends StatelessWidget {
         backgroundColor: Colors.orange[700],
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('checks')
-            .where('itemID', isEqualTo: itemId)
-            .orderBy('datentime', descending: true)
-            .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No check records found.'));
-          }
+  stream: FirebaseFirestore.instance
+      .collection('checks')
+      .where('itemID', isEqualTo: itemId)
+      //.orderBy('datentime', descending: true)
+      .snapshots(),
+  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return const Center(child: Text('No check records found.'));
+    }
 
-          var checks = snapshot.data!.docs;
+    var checks = snapshot.data!.docs; // No need to check ConnectionState.done
 
-          return ListView.builder(
-            itemCount: checks.length,
-            itemBuilder: (context, index) {
-              var check = checks[index];
-              return ListTile(
-                title: Text('${check['userName']} checked this item'),
-                subtitle: Text('${check['datentime'].toDate()}'),
-              );
-            },
-          );
-        },
-      ),
+    return ListView.builder(
+      itemCount: checks.length,
+      itemBuilder: (context, index) {
+        var check = checks[index];
+        return ListTile(
+          title: Text('${check['userName']} checked this item'),
+          subtitle: Text('${check['datentime'].toDate()}'),
+        );
+      },
+    );
+  },
+),
+
     );
   }
 }

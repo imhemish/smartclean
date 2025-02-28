@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:soochi/delete_dialog.dart';
 import 'package:soochi/models/user.dart';
+import 'package:soochi/views/assign_areas.dart';
 import 'package:soochi/views/checklist_overview.dart';
 
 class AreasPage extends StatelessWidget {
@@ -9,7 +11,22 @@ class AreasPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Available Areas')),
+      appBar: AppBar(
+        title: const Text('Available Areas'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.location_pin),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AssignAreasOverviewPage(adminRole: UserRole.Coordinator,),
+                ),
+              );
+            },
+          ),
+        ],
+        ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('areas').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -29,7 +46,44 @@ class AreasPage extends StatelessWidget {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(areas[index]),
-                trailing: Icon(Icons.list),
+                trailing: PopupMenuButton(
+                  onSelected: (value) {
+                    if (value == 'Delete') {
+                      showDeleteConfirmationDialog(context, 'area ${areas[index]}? It would remove all the checklists associated with it. This should not be done unless absolutely necessary!').then((value) {
+                        if (value == null || !value) {
+                          return;
+
+                        }
+                        FirebaseFirestore.instance.collection("checklists").where('area', isEqualTo: areas[index]).get().then((snapshot) {
+                          for (DocumentSnapshot doc in snapshot.docs) {
+                            doc.reference.delete();
+                          }
+                        });
+                        FirebaseFirestore.instance.collection("users").where('area', isEqualTo: areas[index]).get().then((snapshot) {
+                          for (DocumentSnapshot doc in snapshot.docs) {
+                            doc.reference.update({'area': FieldValue.delete()});
+                          }
+                        });
+                        FirebaseFirestore.instance.collection('areas').doc(snapshot.data!.docs[index].id).delete();
+                      });
+                      
+                    } 
+                  },
+                  icon: Icon(Icons.more_vert),
+                  itemBuilder: (context) {
+                  return [
+                    const PopupMenuItem<String>(
+                        value: 'Delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Delete'),
+                          ],
+                        ),
+                      ),
+                  ];
+                }),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(

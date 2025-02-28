@@ -6,7 +6,7 @@ Future<bool?> showDeleteConfirmationDialog(BuildContext context, String deleteWh
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text("Confirm Deletion"),
-        content: Text("Are you sure you want to delete $deleteWhat?"),
+        content: Text("Are you sure you want to delete $deleteWhat"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

@@ -122,6 +122,7 @@ class _SignUpPageState extends State<SignUpPage> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
+            // navigate to proper pages
             MaterialPageRoute(builder: (context) => const LoginPage()),
           );
         }

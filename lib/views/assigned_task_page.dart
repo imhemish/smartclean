@@ -1,6 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+extension DateTimeToday on DateTime {
+  bool isToday() {
+    DateTime now = DateTime.now();
+    return year == now.year && month == now.month && day == now.day;
+  }
+}
 
 class AssignedTasksPage extends StatefulWidget {
   const AssignedTasksPage({super.key});
@@ -12,24 +20,45 @@ class AssignedTasksPage extends StatefulWidget {
 class _AssignedTasksPageState extends State<AssignedTasksPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String? currentUserID = FirebaseAuth.instance.currentUser?.uid;
-  String userArea = '';
+
+  String? area;
+  // because attendant wouldnt have any area initially, so it is nullable
+  bool loading = true;
+
+  void _setupArea() async {
+    setState(() {
+      loading = true;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final role = prefs.getString('role');
+    area = prefs.getString('area');
+    // if area is not null, attendant hasnt been assigned an area yet
+    // but maybe recently he is assigned area, which is not in shared preferences
+    // so we get that from firebase
+    if (area == null) {
+      final snapshot = await _firestore.collection("users").where("googleAuthID", isEqualTo: currentUserID).get();
+        if (snapshot.docs.isNotEmpty) {
+          final user = snapshot.docs.first;
+          try {
+            area = user.get("area");
+          } catch (e) {
+            print("area does not exist for attendant");
+          }
+          if (area != null) {
+            prefs.setString("area", area!);
+          }
+            
+        }
+  
+    }
+
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadUserArea();
+    _setupArea();
     print(currentUserID);
-  }
-
-  Future<void> _loadUserArea() async {
-    if (currentUserID != null) {
-      final userDoc = await _firestore.collection('users').doc(currentUserID).get();
-      if (userDoc.exists && mounted) {
-        setState(() {
-          userArea = userDoc.data()?['area'] ?? '';
-        });
-      }
-    }
   }
 
   Future<void> _toggleTaskStatus(String itemID, bool currentStatus, String checklistId) async {
@@ -39,13 +68,13 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
 
     try {
       if (!currentStatus) {
+
         await _firestore.collection('checks').add({
           'userID': currentUserID,
           'itemID': itemID,
           'datentime': Timestamp.now(),
           'userName': FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown User',
           'checklistId': checklistId,
-          'Status': true,
         });
 
         print('Task Marked as Completed');
@@ -57,10 +86,11 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
             .where('checklistId', isEqualTo: checklistId)
             .get();
 
-        for (var doc in checksQuery.docs) {
-          await doc.reference.delete();
-          print('Task Unchecked: ${doc.id}');
-        }
+        checksQuery.docs.first.reference.delete();
+        // delete the recent check only, which would be today only
+        // if a check has happened in past, do not show it as checked in list
+        // as attendant needs to do check at multiple days
+        
       }
 
       if (mounted) {
@@ -186,7 +216,8 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(
-                                    '${items.length} task',
+                                    items.length > 1 ? '${items.length} tasks' : '${items.length} task',
+                                    
                                     style: TextStyle(
                                       color: Colors.orange.shade700,
                                       fontWeight: FontWeight.w500,
@@ -206,9 +237,13 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
                               Map<String, bool> checkedItems = {};
                               if (checksSnapshot.hasData) {
                                 checkedItems.clear();
-                                for (var doc in checksSnapshot.data!.docs) {
+                                // only load checked items if it is marked only today, so checked today
+                                // and done by current user
+                                
+                                for (var doc in checksSnapshot.data!.docs.where(((doc) => (doc['datentime'].toDate() as DateTime).isToday() && doc['userID'] == currentUserID))) {
                                   checkedItems[doc['itemID'] as String] = true;
                                 }
+                                print(checkedItems);
                               }
 
                               return ListView.builder(

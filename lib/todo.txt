@@ -1,0 +1,14 @@
+show delete button for checklist items
+
+signup page pe routing
+
+checks should add user name instead of account name
+
+styling:
+
+areas_page_admin.dart
+assign_areas.dart
+AssignCheckListToAttendantPage in checklist_overview.dart
+
+profile_page.dart -> use icon according to user role - leave the logic for now, jsut put nice three icons in AssignCheckListToAttendantPage
+remove settings row
