@@ -86,7 +86,8 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       await _firestore.collection('users').doc(user.uid).get().then((doc) {
         if (doc.exists) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User already exists, please sign in")));
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("User already exists, please sign in")));
           return false;
         }
       });
@@ -119,8 +120,9 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() => _isLoading = true);
 
     try {
-      UserCredential? userCredential =
-      kIsWeb ? await _signInWithGoogleOnWeb() : await _signInWithGoogleOnMobile();
+      UserCredential? userCredential = kIsWeb
+          ? await _signInWithGoogleOnWeb()
+          : await _signInWithGoogleOnMobile();
 
       if (userCredential?.user != null) {
         await _storeUserData(userCredential!.user!);
@@ -144,124 +146,175 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData(
-        primarySwatch: Colors.orange,
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            elevation: 2,
-            minimumSize: const Size(double.infinity, 50),
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.orange.shade50,
+              Colors.orange.shade100,
+            ],
           ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.orange, width: 2),
-          ),
-          labelStyle: const TextStyle(color: Colors.orange),
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.person_add,
-                  size: 60,
-                  color: Colors.orange.shade700,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Create an Account",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange.shade800,
+        child: SafeArea(
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.all(24.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.1),
+                    blurRadius: 20,
+                    spreadRadius: 5,
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "Sign up to continue",
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                ),
-                const SizedBox(height: 20),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _uidController,
-                        decoration: const InputDecoration(labelText: "UID"),
-                        validator: (value) =>
-                        value!.isEmpty ? 'Please enter your UID' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(labelText: "Name"),
-                        validator: (value) =>
-                        value!.isEmpty ? 'Please enter your Name' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedRole,
-                        decoration: const InputDecoration(labelText: "Role"),
-                        items: user.UserRole.values.map((user.UserRole role) {
-                          return DropdownMenuItem(
-                            value: role.name,
-                            child: Text(role.name),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _selectedRole = newValue!;
-                          });
-                        },
-                        validator: (value) =>
-                        value == null ? 'Please select a role' : null,
-                      ),
-                      const SizedBox(height: 24),
-                      _isLoading
-                          ? const CircularProgressIndicator()
-                          : ElevatedButton.icon(
-                        onPressed: _signInWithGoogle,
-                        icon: Image.asset(
-                          'assets/images/google_icon.png',
-                          height: 24,
-                          width: 24,
-                        ),
-                        label: const Text("Sign up with Google"),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextButton(
-                  onPressed: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  ),
-                  child: Text(
-                    "Already have an account? Login",
-                    style: TextStyle(
-                      fontSize: 14,
+                ],
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.account_circle,
+                      size: 64,
                       color: Colors.orange.shade800,
-                      fontWeight: FontWeight.w600,
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Create an Account",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "Sign up to continue",
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(height: 24),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _uidController,
+                            decoration: InputDecoration(
+                              labelText: "UID",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.orange.shade600),
+                              ),
+                            ),
+                            validator: (value) =>
+                            value!.isEmpty ? 'Please enter your UID' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: InputDecoration(
+                              labelText: "Name",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.orange.shade600),
+                              ),
+                            ),
+                            validator: (value) =>
+                            value!.isEmpty ? 'Please enter your Name' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: _selectedRole,
+                            decoration: InputDecoration(
+                              labelText: "Role",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.orange.shade600),
+                              ),
+                            ),
+                            items: user.UserRole.values.map((user.UserRole role) {
+                              return DropdownMenuItem(
+                                value: role.name,
+                                child: Text(role.name),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedRole = newValue!;
+                              });
+                            },
+                            validator: (value) =>
+                            value == null ? 'Please select a role' : null,
+                          ),
+                          const SizedBox(height: 24),
+                          _isLoading
+                              ? CircularProgressIndicator(
+                            color: Colors.orange.shade700,
+                          )
+                              : ElevatedButton.icon(
+                            onPressed: _signInWithGoogle,
+                            icon: Image.asset(
+                              'assets/images/google_icon.png',
+                              height: 24,
+                              width: 24,
+                            ),
+                            label: const Text("Sign up with Google"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange.shade700,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              minimumSize: const Size(double.infinity, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Already have an account? ",
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                            ),
+                            child: Text(
+                              "Login",
+                              style: TextStyle(
+                                color: Colors.orange.shade800,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
