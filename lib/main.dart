@@ -6,6 +6,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/models/user.dart';
+import 'package:soochi/utils/cached_data.dart';
 import 'package:soochi/views/admin_home_page.dart';
 import 'package:soochi/views/assigned_task_page.dart';
 import 'package:soochi/views/attendant_page.dart';
@@ -18,13 +19,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
 );
 FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
-  String? stringRole = (await SharedPreferences.getInstance()).getString('role');
-  UserRole? userRole;
-  if (stringRole != null) {
-    userRole = UserRole.values.firstWhere((element) => element.name == stringRole);
-  }
-  FlutterNativeSplash.remove();
-  runApp(MyApp(userRole: userRole,));
+  runApp(MyApp(userRole: (await CachedData.getCachedNameRoleAndArea()).$2,));
 }
 
 class MyApp extends StatefulWidget {
@@ -50,7 +45,9 @@ class _MyAppState extends State<MyApp> {
       // Base case
       setState(() => homePage = SignUpPage());
     }
+    
     super.initState();
+    FlutterNativeSplash.remove();
   }
 
   @override

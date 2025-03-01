@@ -1,9 +1,3 @@
-show delete button for checklist items
-
-signup page pe routing
-
-checks should add user name instead of account name
-
 styling:
 
 areas_page_admin.dart

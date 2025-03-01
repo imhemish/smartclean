@@ -5,6 +5,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/login_page.dart';
+import 'package:soochi/models/user.dart' as user;
+import 'package:soochi/views/admin_home_page.dart';
+import 'package:soochi/views/assigned_task_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -23,7 +26,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool _isLoading = false;
   String _selectedRole = 'Supervisor';
-  final List<String> _roles = ['Supervisor', 'Attendant', 'Coordinator'];
 
   @override
   void initState() {
@@ -45,10 +47,12 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
-  Future<void> _saveRole(String role) async {
+  Future<void> _saveRoleAndName(String role, String name) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('role', role);
+    await prefs.setString("name", name);
   }
+
 
   Future<UserCredential?> _signInWithGoogleOnWeb() async {
     try {
@@ -93,7 +97,8 @@ class _SignUpPageState extends State<SignUpPage> {
         'role': _selectedRole,
       }, SetOptions(merge: true));
 
-      await _saveRole(_selectedRole);
+      // cache role and name in shared preferences
+      await _saveRoleAndName(_selectedRole, _nameController.text);
       return true;
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,9 +127,12 @@ class _SignUpPageState extends State<SignUpPage> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            // navigate to proper pages
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
+            (_selectedRole == 'Supervisor' || _selectedRole == 'Coordinator')
+                ?
+            MaterialPageRoute(builder: (context) => const AdminHomePage())
+            :
+            MaterialPageRoute(builder: (context) => const AssignedTasksPage())
+            );
         }
       }
     } catch (error) {
@@ -209,10 +217,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       DropdownButtonFormField<String>(
                         value: _selectedRole,
                         decoration: const InputDecoration(labelText: "Role"),
-                        items: _roles.map((String role) {
+                        items: user.UserRole.values.map((user.UserRole role) {
                           return DropdownMenuItem(
-                            value: role,
-                            child: Text(role),
+                            value: role.name,
+                            child: Text(role.name),
                           );
                         }).toList(),
                         onChanged: (String? newValue) {

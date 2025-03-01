@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/signup_page.dart';
-import 'package:soochi/logout_dialog.dart';
+import 'package:soochi/dialogs/logout_dialog.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/views/areas_page_admin.dart';
 import 'package:soochi/views/checklist_overview.dart';

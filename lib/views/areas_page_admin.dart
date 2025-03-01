@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:soochi/delete_dialog.dart';
+import 'package:soochi/dialogs/delete_dialog.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/views/assign_areas.dart';
 import 'package:soochi/views/checklist_overview.dart';
+import 'package:soochi/widgets/popup_menu_item.dart';
 
 class AreasPage extends StatelessWidget {
   const AreasPage({super.key});
@@ -72,16 +73,12 @@ class AreasPage extends StatelessWidget {
                   icon: Icon(Icons.more_vert),
                   itemBuilder: (context) {
                   return [
-                    const PopupMenuItem<String>(
-                        value: 'Delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete_outline, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete'),
-                          ],
-                        ),
-                      ),
+                    PopupMenuItemWithIcon(
+                      icon: Icons.delete_outline,
+                      textValue: 'Delete',
+                      color: Colors.red,
+
+                    )
                   ];
                 }),
                 onTap: () => Navigator.push(

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soochi/utils/cached_data.dart';
 
 extension DateTimeToday on DateTime {
   bool isToday() {
@@ -73,7 +74,7 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
           'userID': currentUserID,
           'itemID': itemID,
           'datentime': Timestamp.now(),
-          'userName': FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown User',
+          'userName': (await CachedData.getCachedNameRoleAndArea()).$1,
           'checklistId': checklistId,
         });
 

@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:soochi/delete_dialog.dart';
+import 'package:soochi/dialogs/delete_dialog.dart';
 import 'package:soochi/models/user.dart';
+import 'package:soochi/widgets/popup_menu_item.dart';
 import 'package:uuid/uuid.dart';
 
 class ChecklistOverviewPage extends StatefulWidget {
@@ -130,8 +131,7 @@ class _ChecklistOverviewPageState extends State<ChecklistOverviewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.area,
-            style: const TextStyle(color: Colors.white)),
+        title: Text(widget.area, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.orange[700],
       ),
       body: StreamBuilder(
@@ -206,26 +206,14 @@ class _ChecklistOverviewPageState extends State<ChecklistOverviewPage> {
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem<String>(
-                        value: 'Delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete_outline, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'Assign',
-                        child: Row(
-                          children: [
-                            Icon(Icons.person_add_outlined, color: Colors.blue),
-                            SizedBox(width: 8),
-                            Text('Assign'),
-                          ],
-                        ),
-                      ),
+                      PopupMenuItemWithIcon(
+                          textValue: "Delete",
+                          icon: Icons.delete_outline,
+                          color: Colors.red),
+                      PopupMenuItemWithIcon(
+                          textValue: "Assign",
+                          icon: Icons.person_add,
+                          color: Colors.blue)
                     ],
                   ),
                   onTap: () => Navigator.push(
@@ -353,17 +341,39 @@ class ChecklistDetailPage extends StatelessWidget {
                   title: Text(item['task'],
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w600)),
-                  trailing: Icon(
-                    Icons.history,
-                    color: Colors.green,
-                  ),
+                  trailing: adminRole == UserRole.Coordinator ? Icon(Icons.history) : PopupMenuButton(
+                      onSelected: (value) {
+                        if (value == 'Delete') {
+                          showDeleteConfirmationDialog(
+                                  context, "task ${item['task']}?")
+                              .then((value) {
+                            if (value == true) {
+                              FirebaseFirestore.instance
+                                  .collection("checklists")
+                                  .doc(checklistId)
+                                  .update({
+                                'items': FieldValue.arrayRemove([item])
+                              });
+                            } else {
+                              print("Delete cancelled");
+                            }
+                          });
+                        }
+                      },
+                      itemBuilder: (context) => [
+                            PopupMenuItemWithIcon(
+                                textValue: "Delete",
+                                icon: Icons.delete_outline,
+                                color: Colors.red)
+                          ]),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) {
                           print(item['itemID']);
-                            return CheckHistoryPage(itemId: item['itemID']);},
+                          return CheckHistoryPage(itemId: item['itemID']);
+                        },
                       ),
                     );
                   },
@@ -491,36 +501,35 @@ class CheckHistoryPage extends StatelessWidget {
         backgroundColor: Colors.orange[700],
       ),
       body: StreamBuilder(
-  stream: FirebaseFirestore.instance
-      .collection('checks')
-      .where('itemID', isEqualTo: itemId)
-      //.orderBy('datentime', descending: true)
-      .snapshots(),
-  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    
-    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-      return const Center(child: Text('No check records found.'));
-    }
+        stream: FirebaseFirestore.instance
+            .collection('checks')
+            .where('itemID', isEqualTo: itemId)
+            //.orderBy('datentime', descending: true)
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-    var checks = snapshot.data!.docs; // No need to check ConnectionState.done
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No check records found.'));
+          }
 
-    return ListView.builder(
-      itemCount: checks.length,
-      itemBuilder: (context, index) {
-        var check = checks[index];
-        return ListTile(
-          title: Text('${check['userName']} checked this item'),
-          subtitle: Text('${check['datentime'].toDate()}'),
-        );
-      },
-    );
-  },
-),
+          var checks =
+              snapshot.data!.docs; // No need to check ConnectionState.done
 
+          return ListView.builder(
+            itemCount: checks.length,
+            itemBuilder: (context, index) {
+              var check = checks[index];
+              return ListTile(
+                title: Text('${check['userName']} checked this item'),
+                subtitle: Text('${check['datentime'].toDate()}'),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

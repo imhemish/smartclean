@@ -80,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
         if (userInFirebase.exists) {
           final prefs = await SharedPreferences.getInstance();
           final userRole = userInFirebase.get('role');
+          final String userName = userInFirebase.get('name');
           String? userArea;
           try {
             userArea = userInFirebase.get('area');
@@ -91,6 +92,7 @@ class _LoginPageState extends State<LoginPage> {
           if (userArea != null) {
             await prefs.setString('area', userArea);
           }
+          prefs.setString("name", userName);
           if (userRole == UserRole.Supervisor.name ||
               userRole == UserRole.Coordinator.name) {
             Navigator.pushReplacement(context,
