@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:soochi/models/user.dart';
 
 class AssignAreasOverviewPage extends StatelessWidget {
-  final UserRole adminRole;
-  const AssignAreasOverviewPage({super.key, required this.adminRole});
+  const AssignAreasOverviewPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,14 +12,14 @@ class AssignAreasOverviewPage extends StatelessWidget {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .where('role', whereIn: [if (adminRole == UserRole.Supervisor) UserRole.Attendant.name else UserRole.Supervisor.name])
+            .where('role', isEqualTo: UserRole.Supervisor.name)
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No ${adminRole == UserRole.Supervisor ? 'attendants' : 'supervisors'} found.'));
+            return Center(child: Text('No supervisors found'));
           }
 
           var users = snapshot.data!.docs;
@@ -31,14 +30,13 @@ class AssignAreasOverviewPage extends StatelessWidget {
               var user = users[index];
               return ListTile(
                 title: Text(user['name']),
-                subtitle: Text('Role: ${user['role']}'),
                 trailing: IconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AssignAreaPage(userId: user.id, assignToRole: UserRole.values.firstWhere((role) => role.name == user['role'])),
+                        builder: (context) => AssignAreaPage(userId: user.id),
                       ),
                     );
                   },
@@ -54,9 +52,8 @@ class AssignAreasOverviewPage extends StatelessWidget {
 
 class AssignAreaPage extends StatefulWidget {
   final String userId;
-  final UserRole assignToRole;
 
-  const AssignAreaPage({super.key, required this.userId, required this.assignToRole});
+  const AssignAreaPage({super.key, required this.userId});
 
   @override
   State<AssignAreaPage> createState() => _AssignAreaPageState();
@@ -66,7 +63,7 @@ class _AssignAreaPageState extends State<AssignAreaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Assign Area to ${widget.assignToRole.name}')),
+      appBar: AppBar(title: Text('Assign Area to Supervisor')),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('areas').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {

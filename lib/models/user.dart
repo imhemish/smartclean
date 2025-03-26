@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum UserRole {
-  Attendant, Supervisor, Coordinator 
+  Supervisor, Coordinator
 }
 
 var _firestore = FirebaseFirestore.instance;
@@ -44,24 +44,4 @@ class User {
     );
   }
 
-  static Future<void> addUser(User user) async {
-    try {
-      await _firestore.collection('users').add(user.toMap());
-      print('User saved to Firestore');
-    } catch (e) {
-      print('Error saving user: $e');
-    }
-  }
-
-  static Future<User?> getUser(String documentId) async {
-    try {
-      DocumentSnapshot doc = await users.doc(documentId).get();
-      if (doc.exists) {
-        return User.fromMap(doc.data() as Map<String, dynamic>);
-      }
-    } catch (e) {
-      print('Error getting user: $e');
-    }
-    return null;
-  }
 }

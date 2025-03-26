@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/login_page.dart';
 import 'package:soochi/models/user.dart' as user;
 import 'package:soochi/views/admin_home_page.dart';
-import 'package:soochi/views/assigned_task_page.dart';
+import 'package:soochi/views/on_duty_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -129,11 +129,11 @@ class _SignUpPageState extends State<SignUpPage> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            (_selectedRole == 'Supervisor' || _selectedRole == 'Coordinator')
+            (_selectedRole == 'Coordinator')
                 ?
             MaterialPageRoute(builder: (context) => const AdminHomePage())
             :
-            MaterialPageRoute(builder: (context) => const AssignedTasksPage())
+            MaterialPageRoute(builder: (context) => const OnDutyPage())
             );
         }
       }
@@ -179,12 +179,17 @@ class _SignUpPageState extends State<SignUpPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Image.asset(
+                      'assets/images/mmu.png',
+                      height: 90,
+                    ),
+                    SizedBox(height: 12,),
                     Icon(
                       Icons.account_circle,
-                      size: 64,
+                      size: 60,
                       color: Colors.orange.shade800,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 1),
                     Text(
                       "Create an Account",
                       style: TextStyle(
@@ -193,7 +198,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         color: Colors.orange.shade800,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    
                     Text(
                       "Sign up to continue",
                       style: TextStyle(fontSize: 14, color: Colors.grey.shade600),

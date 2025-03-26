@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:soochi/dialogs/delete_dialog.dart';
-import 'package:soochi/models/user.dart';
 import 'package:soochi/views/assign_areas.dart';
 import 'package:soochi/views/checklist_overview.dart';
 import 'package:soochi/widgets/popup_menu_item.dart';
@@ -21,7 +20,7 @@ class AreasPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AssignAreasOverviewPage(adminRole: UserRole.Coordinator,),
+                  builder: (context) => AssignAreasOverviewPage(),
                 ),
               );
             },
@@ -55,6 +54,10 @@ class AreasPage extends StatelessWidget {
                           return;
 
                         }
+                        // A series of delete operations is required
+                        // If the area is deleted, all the checklists associated with it should be deleted
+                        // If the area is deleted, all the users associated with it should have their area field removed
+                        
                         FirebaseFirestore.instance.collection("checklists").where('area', isEqualTo: areas[index]).get().then((snapshot) {
                           for (DocumentSnapshot doc in snapshot.docs) {
                             doc.reference.delete();
@@ -84,7 +87,7 @@ class AreasPage extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ChecklistOverviewPage(area: areas[index], adminRole: UserRole.Coordinator,),
+                    builder: (context) => ChecklistOverviewPage(area: areas[index]),
                   ),
                 ),
               );

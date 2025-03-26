@@ -3,13 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/utils/cached_data.dart';
 import 'package:soochi/views/admin_home_page.dart';
-import 'package:soochi/views/assigned_task_page.dart';
-import 'package:soochi/views/attendant_page.dart';
+import 'package:soochi/views/on_duty_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -37,10 +35,11 @@ class _MyAppState extends State<MyApp> {
     if (FirebaseAuth.instance.currentUser == null) {
       
       setState(() => homePage = SignUpPage());
-    } else if (widget.userRole == UserRole.Coordinator || widget.userRole == UserRole.Supervisor) {
+    } else if (widget.userRole == UserRole.Coordinator) {
+      
       setState(() => homePage = AdminHomePage());
-    } else if (widget.userRole == UserRole.Attendant) {
-      setState(() => homePage = AssignedTasksPage());
+    } else if (widget.userRole == UserRole.Supervisor) {
+      setState(() => homePage = OnDutyPage());
     } else {
       // Base case
       setState(() => homePage = SignUpPage());
@@ -54,19 +53,21 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Soochi',
+      title: 'SmartClean',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.orange[50],
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         appBarTheme: AppBarTheme(
           centerTitle: true,
           backgroundColor: Colors.orange[800],
         elevation: 0,
+        
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(16),
           ),
         ),
-          titleTextStyle: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2, fontSize: 25)
+          titleTextStyle: TextStyle(letterSpacing: 2, fontSize: 23, color: Colors.white, fontWeight: FontWeight.w600)
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: Colors.orange[700]

@@ -1,16 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:soochi/authentication/signup_page.dart';
-import 'package:soochi/dialogs/logout_dialog.dart';
-import 'package:soochi/models/user.dart';
+import 'package:soochi/authentication/login_page.dart';
+import 'package:soochi/utils/cached_data.dart';
 import 'package:soochi/views/areas_page_admin.dart';
-import 'package:soochi/views/checklist_overview.dart';
-import 'package:soochi/views/profile_page_admin.dart';
-
-import 'attendance_page.dart';
+import 'package:soochi/views/profile_page.dart';
+import 'package:soochi/views/records.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -21,69 +17,39 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   int _selectedIndex = 0;
+  bool isAdmin = false;
 
   // would be initialised later
-  final List<Widget> _pages = [];
+  final List<Widget> _pages = [ChecklistRecordsPage(), AreasPage(), ProfilePage()];
 
-  // just specify any adminrole value at first, would be given later by initstate
-  UserRole adminRole = UserRole.Coordinator;
-  String? area;
-  // because coordinator wouldnt have any area, so it is nullable
-  bool loading = true;
-
-  void _setupRoleAndAreaAndPages() async {
-    setState(() {
-      loading = true;
-    });
-    final prefs = await SharedPreferences.getInstance();
-    final role = prefs.getString('role');
-    if (role == 'Supervisor') {
-      adminRole = UserRole.Supervisor;
-    } else if (role == 'Coordinator') {
-      adminRole = UserRole.Coordinator;
-    }
-
-    area = prefs.getString('area');
-
-    // if area is null, it could be coordinator
-    // but if area is not null, it is supervisor who hasnt been assigned an area yet
-    // but maybe recently he is assigned area, which is not in shared preferences
-    // so we get that from firebase
-    if (area == null && adminRole == UserRole.Supervisor) {
-      final snapshot = await FirebaseFirestore.instance.collection("users").where("googleAuthID", isEqualTo: FirebaseAuth.instance.currentUser!.uid).get();
-        if (snapshot.docs.isNotEmpty) {
-          final user = snapshot.docs.first;
-          String? area;
-          try {
-            area = user.get("area");
-          } catch (e) {
-            print("area does not exist for admin");
-          }
-          if (area != null) {
-            prefs.setString("area", area);
-          }
-            
-        }
-  
-    }
-
-    _pages.add(AttendancePage());
+  _figureOutAdmin() async {
+    if (await CachedData.getAdminState()) {
+      setState(() {
+        isAdmin = true;
+      });
+    } else {
+      // cache says not admin, but we are double checking from database
+      // if the user is an admin (newly set which was not in cache)
+      // then also set in cache
+      final user = FirebaseAuth.instance.currentUser;
+    final snapshot = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+    final data = snapshot.data() as Map<String, dynamic>;
+    print(data);
     
-    if (adminRole == UserRole.Supervisor) {
-      _pages.add(ChecklistOverviewPage(area: area ?? "", adminRole: UserRole.Supervisor,));
-    } else if (adminRole == UserRole.Coordinator) {
-      _pages.add(AreasPage());
+    if (data['admin'] == true) {
+      await CachedData.setAdminStateTrue();
+      setState(() {
+        isAdmin = true;
+      });
     }
-    _pages.add(ProfilePageAdmin());
-    setState(() {
-      loading = false;
-    });
+    }
+    
   }
-
   @override
   void initState() {
     super.initState();
-    _setupRoleAndAreaAndPages();
+    _figureOutAdmin();
+
   }
 
   void _onItemTapped(int index) {
@@ -94,34 +60,29 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator.adaptive(),
-        ),
-      );
-    }
 
-    if (adminRole == UserRole.Supervisor && area == null) {
+    if (!isAdmin) {
       return Scaffold(
-        appBar: AppBar(title: Text("Not Assigned"), actions: [
-          IconButton(onPressed: () {
-          showSignOutDialog(context);
-        }, icon: Icon(Icons.logout,)),
-
-        IconButton(onPressed: () => _setupRoleAndAreaAndPages(), icon: Icon(Icons.refresh))
-
-        ],),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error, color: Colors.red, size: 60),
-            SizedBox(height: 20,),
-            Center(
-        
-              child: Text("You are not assigned any area yet"),
-            ),
-          ],
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error, size: 50, color: Colors.red),
+              const SizedBox(height: 10),
+              Text('You are not an admin'),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  SharedPreferences.getInstance().then((value) {
+                      value.clear();
+                    });
+                    FirebaseAuth.instance.signOut();
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginPage()));
+                },
+                child: const Text('Sign Out'),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -139,9 +100,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.orange[50],
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Attendance'),
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: adminRole == UserRole.Coordinator ? "Areas" : 'Checklists'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Records'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Admin'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

@@ -7,8 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/models/user.dart';
 import 'package:soochi/views/admin_home_page.dart';
-import 'package:soochi/views/assigned_task_page.dart';
-import 'package:soochi/views/attendant_page.dart';
+import 'package:soochi/views/on_duty_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -93,15 +92,18 @@ class _LoginPageState extends State<LoginPage> {
             await prefs.setString('area', userArea);
           }
           prefs.setString("name", userName);
-          if (userRole == UserRole.Supervisor.name ||
+          if (
               userRole == UserRole.Coordinator.name) {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => AdminHomePage()));
-          } else {
+          } else if (userRole == UserRole.Supervisor.name) {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => OnDutyPage()));
+          }else {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => AssignedTasksPage()));
+                    builder: (context) => Placeholder()));
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -164,6 +166,11 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Image.asset(
+                      'assets/images/mmu.png',
+                      height: 90,
+                    ),
+                    SizedBox(height: 30,),
                     Icon(
                       Icons.cleaning_services,
                       size: 64,

@@ -4,6 +4,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soochi/models/user.dart';
 
 class CachedData {
+
+  static Future<bool> getAdminState() async {
+    final prefs = await SharedPreferences.getInstance();
+    late bool? admin;
+    try {
+      admin = prefs.getBool("admin");
+      if (admin != null) {
+        return admin;
+      }
+    } catch (e) {
+      print("admin status does not exist");
+  }
+  admin = false;
+  return admin;
+  }
+  
   static Future<(String?, UserRole?, String?)> getCachedNameRoleAndArea() async {
     final prefs = await SharedPreferences.getInstance();
     String? name;
@@ -43,5 +59,15 @@ class CachedData {
 
     return (name, UserRole.values.firstWhere((element) => element.name == role), area);
 
+  }
+
+  static setArea(String area) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('area', area);
+  }
+
+  static setAdminStateTrue() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('admin', true);
   }
 }
