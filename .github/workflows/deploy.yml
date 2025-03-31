@@ -23,7 +23,7 @@ jobs:
       # Update the base href dynamically
       - name: Update Base Href
         run: |
-          sed -i 's|<base href="/">|<base href="/<your-repo-name>/">|' web/index.html
+          sed -i 's|<base href="/">|<base href="/smartclean/">|' web/index.html
 
       # Build the Flutter web app
       - name: Build Flutter Web
