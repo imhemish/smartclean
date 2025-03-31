@@ -20,17 +20,12 @@ jobs:
         with:
           flutter-version: "3.29.2"
 
-      # Update the base href dynamically
-      - name: Update Base Href
-        run: |
-          sed -i 's|<base href="/">|<base href="/smartclean/">|' web/index.html
-
       - name: Create firebase_options.dart
         run: echo "${{ secrets.FIREBASE_OPTIONS }}" > lib/firebase_options.dart
 
       # Build the Flutter w app
       - name: Build Flutter Web
-        run: flutter build web --release
+        run: flutter build web --release --base-href /smartclean/
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
