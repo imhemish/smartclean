@@ -36,7 +36,7 @@ void main() async {
   print('Allowed versions: $allowedVersions');
 
   if (!allowedVersions.contains(currentVersion)) {
-    runApp(const UpgradeAppPage());
+    runApp(UpgradeAppPage(currentVersion));
   } else {
     runApp(MyApp(
       userRole: (await CachedData.getCachedNameRoleAndArea()).$2,
@@ -45,7 +45,9 @@ void main() async {
 }
 
 class UpgradeAppPage extends StatefulWidget {
-  const UpgradeAppPage({Key? key}) : super(key: key);
+  
+  final String currentVersion;
+  const UpgradeAppPage(this.currentVersion, {super.key});
 
   @override
   State<UpgradeAppPage> createState() => _UpgradeAppPageState();
@@ -70,6 +72,9 @@ class _UpgradeAppPageState extends State<UpgradeAppPage> {
               Icon(Icons.download, size: 100, color: Colors.orange[800],),
               const SizedBox(height: 20),
               Text("Upgrade Required", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: Colors.orange[800])),
+
+              const SizedBox(height: 20),
+              Text("Current version: ${widget.currentVersion}", style: TextStyle(fontSize: 18, color: Colors.orange[800])),
 
                 
               const SizedBox(height: 20),
