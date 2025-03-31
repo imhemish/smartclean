@@ -28,7 +28,7 @@ jobs:
       - name: Create firebase_options.dart
         run: echo "${{ secrets.FIREBASE_OPTIONS }}" > lib/firebase_options.dart
 
-      # Build the Flutter web app
+      # Build the Flutter w app
       - name: Build Flutter Web
         run: flutter build web --release
 
