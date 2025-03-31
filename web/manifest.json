@@ -1,11 +1,11 @@
 {
-    "name": "soochi",
-    "short_name": "soochi",
+    "name": "SmartClean",
+    "short_name": "SmartClean",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#hexcode",
-    "theme_color": "#hexcode",
-    "description": "A new Flutter project.",
+    "theme_color": "#f57c00",
+    "description": "MMDU Housekeeping App",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
