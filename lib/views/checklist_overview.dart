@@ -186,7 +186,7 @@ class _ChecklistOverviewPageState extends State<ChecklistOverviewPage> {
                           color: Colors.red),
                     ],
                   ),
-                  onTap: () {}
+                  
                 ),
               );
             },
