@@ -10,7 +10,8 @@ import 'package:soochi/views/admin_home_page.dart';
 import 'package:soochi/views/on_duty_page.dart';
 import 'firebase_options.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:soochi/version.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
@@ -30,8 +31,7 @@ void main() async {
   await remoteConfig.fetchAndActivate();
 
   final allowedVersions = remoteConfig.getString('versions').split(';');
-  final packageInfo = await PackageInfo.fromPlatform();
-  final currentVersion = packageInfo.version;
+  final currentVersion = version;
   print('Current version: $currentVersion');
   print('Allowed versions: $allowedVersions');
 
