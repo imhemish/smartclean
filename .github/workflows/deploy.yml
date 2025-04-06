@@ -25,7 +25,7 @@ jobs:
 
       # Build the Flutter w app
       - name: Build Flutter Web
-        run: flutter build web --release --base-href "/smartclean/"
+        run: flutter build web --release --base-href "/smartclean/" --pwa-strategy=offline-first
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
