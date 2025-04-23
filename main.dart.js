@@ -99394,7 +99394,7 @@ var $async$$0=A.o(function(a,b){if(a===1)return A.p(b,r)
 while(true)switch(s){case 0:p=$.aw
 o=(p==null?$.aw=$.bL():p).bT("[DEFAULT]")
 A.b1(o,$.cg(),!0)
-q="https://github.com/imhemish/smartclean/releases/download/"+B.b.gav(A.aPW(new A.bv(o)).gzZ().Fn("versions").split(";"))+"/SmartClean.apk"
+q="https://github.com/imhemish/smartclean/releases/download/"+B.b.gav(A.aPW(new A.bv(o)).gzZ().Fn("versions").split(";"))+"/app-release.apk"
 s=5
 return A.n(A.aMr(A.fl(q,0,null)),$async$$0)
 case 5:s=b?2:4
@@ -99806,7 +99806,7 @@ i=A
 s=8
 return A.n(n.qe(),$async$v5)
 case 8:s=7
-return A.n(i.aK0(c,B.GL,200,200,50),$async$v5)
+return A.n(i.aK0(c,B.GL,200,200,60),$async$v5)
 case 7:m=c
 q=m
 s=1
