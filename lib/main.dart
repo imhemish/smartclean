@@ -87,7 +87,7 @@ class _UpgradeAppPageState extends State<UpgradeAppPage> {
                   final remoteConfig = FirebaseRemoteConfig.instance;
                   final allowedVersions = remoteConfig.getString('versions').split(';');
                   final latestVersion = allowedVersions.last;
-                  final url = 'https://github.com/imhemish/smartclean/releases/download/$latestVersion/SmartClean.apk';
+                  final url = 'https://github.com/imhemish/smartclean/releases/download/$latestVersion/app-release.apk';
                   if (await canLaunchUrl(Uri.parse(url))) {
                     await launchUrl(Uri.parse(url));
                   } else {

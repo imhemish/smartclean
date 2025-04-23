@@ -265,7 +265,7 @@ class _AssignedTasksPageState extends State<AssignedTasksPage> {
         XFile file = fileInput;
         final result = await FlutterImageCompress.compressWithList(
             (await file.readAsBytes()),
-            quality: 50,
+            quality: 60,
             minWidth: 200,
             minHeight: 200,
             format: CompressFormat.jpeg);
