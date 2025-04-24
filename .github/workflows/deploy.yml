@@ -22,6 +22,10 @@ jobs:
 
       - name: Create firebase_options.dart
         run: echo "${{ secrets.FIREBASE_OPTIONS }}" > lib/firebase_options.dart
+      
+      - name: Create env file
+        run: echo "${{ secrets.ENV }}" > .env
+
 
       # Build the Flutter w app
       - name: Build Flutter Web

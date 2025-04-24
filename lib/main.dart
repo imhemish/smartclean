@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:soochi/authentication/signup_page.dart';
 import 'package:soochi/models/user.dart';
@@ -35,6 +36,8 @@ void main() async {
   print('Current version: $currentVersion');
   print('Allowed versions: $allowedVersions');
 
+  await dotenv.load();
+
   if (!allowedVersions.contains(currentVersion)) {
     runApp(UpgradeAppPage(currentVersion));
   } else {
@@ -42,6 +45,7 @@ void main() async {
       userRole: (await CachedData.getCachedNameRoleAndArea()).$2,
     ));
   }
+
 }
 
 class UpgradeAppPage extends StatefulWidget {
@@ -83,7 +87,7 @@ class _UpgradeAppPageState extends State<UpgradeAppPage> {
                   final remoteConfig = FirebaseRemoteConfig.instance;
                   final allowedVersions = remoteConfig.getString('versions').split(';');
                   final latestVersion = allowedVersions.last;
-                  final url = 'https://github.com/imhemish/soochi/releases/download/$latestVersion/SmartClean.apk';
+                  final url = 'https://github.com/imhemish/smartclean/releases/download/$latestVersion/SmartClean.apk';
                   if (await canLaunchUrl(Uri.parse(url))) {
                     await launchUrl(Uri.parse(url));
                   } else {

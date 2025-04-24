@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:soochi/dialogs/image_dialog.dart';
 
 class ChecklistRecordsPage extends StatefulWidget {
   const ChecklistRecordsPage({super.key});
@@ -59,8 +61,8 @@ class _ChecklistRecordsPageState extends State<ChecklistRecordsPage> {
   }
 
   // Get the most recent state for a specific time slot
-  String _getMostRecentState(List<dynamic> states, DateTime selectedDate, String timeSlot) {
-    if (states.isEmpty) return "notClean";
+  Map<String, dynamic> _getMostRecentStateData(List<dynamic> states, DateTime selectedDate, String timeSlot) {
+    if (states.isEmpty) return {"state": "notClean", "imageUrl": null};
 
     // Get time range for the selected time slot
     final timeRange = _getTimeSlotHours(timeSlot);
@@ -80,14 +82,18 @@ class _ChecklistRecordsPageState extends State<ChecklistRecordsPage> {
     }).toList();
 
     // If no states found, return default
-    if (filteredStates.isEmpty) return "notClean";
+    if (filteredStates.isEmpty) return {"state": "notClean", "imageUrl": null};
 
     // Sort states by timestamp and get the most recent
     filteredStates.sort((a, b) => 
       (b['timestamp'] as Timestamp).compareTo(a['timestamp'] as Timestamp)
     );
 
-    return filteredStates.first['state'] ?? "notClean";
+    final mostRecent = filteredStates.first;
+    return {
+      "state": mostRecent['state'] ?? "notClean",
+      "imageUrl": mostRecent['imageUrl'],
+    };
   }
 
   // Get start and end time for the selected time slot
@@ -103,6 +109,7 @@ class _ChecklistRecordsPageState extends State<ChecklistRecordsPage> {
       default: return {'start': 0, 'end': 24};
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -233,25 +240,45 @@ class _ChecklistRecordsPageState extends State<ChecklistRecordsPage> {
                           final data = doc.data() as Map<String, dynamic>;
                           final selectedDate = _selectedDate ?? DateTime.now();
                           
-                          // Get the most recent state for this checklist and time slot
-                          final state = _getMostRecentState(
+                          // Get the most recent state data for this checklist and time slot
+                          final stateData = _getMostRecentStateData(
                             data['states'] ?? [], 
                             selectedDate, 
                             timeSlot
                           );
+                          
+                          final String state = stateData["state"] as String;
+                          final String? imageUrl = stateData["imageUrl"] as String?;
+                          final bool hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
                           return DataCell(
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: _getStateColor(state).withAlpha(40),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                state == 'inProgress' ? 'In Progress' : state == 'clean' ? 'Clean' : 'Not Clean',
-                                style: TextStyle(
-                                  color: _getStateColor(state),
-                                  fontWeight: FontWeight.bold,
+                            InkWell(
+                              onTap: hasImage ? () => showImageDialog(context, imageUrl!) : null,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: _getStateColor(state).withAlpha(40),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      state == 'inProgress' ? 'In Progress' : state == 'clean' ? 'Clean' : 'Not Clean',
+                                      style: TextStyle(
+                                        color: _getStateColor(state),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    if (hasImage) ...[
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.image,
+                                        size: 16,
+                                        color: _getStateColor(state),
+                                      ),
+                                    ]
+                                  ],
                                 ),
                               ),
                             ),
